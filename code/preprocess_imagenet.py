@@ -69,7 +69,7 @@ def main():
                                      rng = np.random.RandomState(seed=49809),
                                      do_preprocessing = do_style_preprocessing)
 
-    smooth_transfer = smooth_loader.get_style_tensor_function
+    smooth_transfer = smooth_loader.get_smooth_tensor_function
     print("=> Succesfully created style loader.")
 
     #############################################################
