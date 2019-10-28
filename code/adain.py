@@ -14,12 +14,19 @@ from torchvision.utils import save_image
 from torchvision import transforms
 import torch.nn as nn
 from PIL import Image
+
+import tensorflow as tf
 import numpy as np
 from abc import ABC, abstractmethod 
 
 import general as g
 import net
 from function import adaptive_instance_normalization
+
+from module import model_vdsr
+
+from tqdm import tqdm
+
 
 
 
@@ -349,7 +356,13 @@ class SmoothMe(SmoothTransferer):
         #content_tensor = content_tensor.cuda()
         output_tensor = torch.FloatTensor(content_tensor.size()).zero_()
 
-        for i in range(batch_size):
+        tf.reset_default_graph()
+        test_input = tf.placeholder(tf.float32,[1, 3, None, None], name='test')
+        test_input_scale = test_input ######[0,255]
+        test_output, temp_weights= model_vdsr(test_input_scale,reuse=False)
+        saver = tf.train.Saver()
+        sess=tf.Session()
+        for i in tqdm(range(batch_size)):
 
             # convert style to variable
            # style = style_tensor[i, :, :, :]
@@ -362,13 +375,13 @@ class SmoothMe(SmoothTransferer):
             content = Variable(content.unsqueeze(0), volatile=True)
 
             # call new_transfer_single_style
-            output_tensor[i, :, :, :] = self.transfer_single_smooth(content_variable=content,
+            output_tensor[i, :, :, :] = self.transfer_single_smooth(saver, sess, test_output, test_input,content_variable=content,
                                                                    output_to_cpu=output_to_cpu)
 
         # return output tensor
         return output_tensor
 
-    def transfer_single_smooth(self, content_variable,
+    def transfer_single_smooth(self, saver, sess, toup, tin, content_variable,
                               output_to_cpu=False):
         """Given style and content: transfer!
 
@@ -382,7 +395,7 @@ class SmoothMe(SmoothTransferer):
         output_tensor -- a torch.FloatTensor with the transferred image
         """
 
-        output_tensor = self.transfer_helper(content_variable,
+        output_tensor = self.transfer_helper(saver,sess,toup, tin, content_variable,
                                              alpha=self.args.alpha).data
 
         if output_to_cpu:
@@ -390,7 +403,7 @@ class SmoothMe(SmoothTransferer):
 
         return output_tensor
 
-    def transfer_helper(self, content, alpha=1.0,
+    def transfer_helper(self, saver, sess, test_output, test_input, content, alpha=1.0,
                         interpolation_weights=None):
         """Helper method for style transfer.
 
@@ -403,6 +416,16 @@ class SmoothMe(SmoothTransferer):
         Returns:
         a torch.FloatTensor with the transferred image
         """
+        
+        saver.restore(sess, 'checkpoint_ReguTerm/model-140002')
+        content = content.data.numpy()
+        tfcontent = tf.convert_to_tensor(content)
+        with tf.Session():
 
-        return content
+            #output = tfcontent.eval()
+            output= sess.run(test_output,feed_dict={test_input: content})
+        #print("*************************************************************")
+        #print(type(output))
+        #print(type(output[0]))
+        return torch.tensor(output)
 
