@@ -298,8 +298,8 @@ class SmoothMe(SmoothTransferer):
     def __init__(self, args):
         self.args = args
 
-        if self.args.gpu >= 0:
-            torch.cuda.set_device(self.args.gpu)
+        #if self.args.gpu >= 0:
+        #    torch.cuda.set_device(self.args.gpu)
 
         # self.decoder = net.decoder
         # self.vgg = net.vgg
@@ -346,7 +346,7 @@ class SmoothMe(SmoothTransferer):
         batch_size = content_tensor.size()[0]
 
         # style_tensor = style_tensor.cuda()
-        content_tensor = content_tensor.cuda()
+        #content_tensor = content_tensor.cuda()
         output_tensor = torch.FloatTensor(content_tensor.size()).zero_()
 
         for i in range(batch_size):
