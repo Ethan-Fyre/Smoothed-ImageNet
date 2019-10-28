@@ -321,7 +321,7 @@ class SmoothMe(SmoothTransferer):
         # self.vgg.cuda()
         # self.decoder.cuda()
 
-        self.content_transforms = get_default_transforms(self.args.content_size, self.args.crop)
+        self.content_transforms = get_default_transforms(self.args.content_size)
         # self.style_transforms = get_default_transforms(self.args.style_size, self.args.crop)
 
         self.print_img_counter = 0
@@ -427,5 +427,6 @@ class SmoothMe(SmoothTransferer):
         #print("*************************************************************")
         #print(type(output))
         #print(type(output[0]))
+        #anychange
         return torch.tensor(output)
 
