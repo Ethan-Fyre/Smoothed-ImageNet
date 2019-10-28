@@ -30,31 +30,31 @@ from tqdm import tqdm
 
 
 
-def crop_square_and_downsample(img, downsize_size=(g.IMG_SIZE, g.IMG_SIZE)):
-    """Crop to largest center square and then downsample."""
+# def crop_square_and_downsample(img, downsize_size=(g.IMG_SIZE, g.IMG_SIZE)):
+#     """Crop to largest center square and then downsample."""
 
-    width, height = img.size
-    new_size = int(np.min((width, height)))
-    left = int((width - new_size)/2)
-    top = int((height - new_size)/2)
-    right = left + new_size
-    bottom = top + new_size
-    img = img.crop(box=(left, top, right, bottom))
-    img.thumbnail(downsize_size, Image.ANTIALIAS)
-    return img
+#     width, height = img.size
+#     new_size = int(np.min((width, height)))
+#     left = int((width - new_size)/2)
+#     top = int((height - new_size)/2)
+#     right = left + new_size
+#     bottom = top + new_size
+#     img = img.crop(box=(left, top, right, bottom))
+#     img.thumbnail(downsize_size, Image.ANTIALIAS)
+#     return img
 
 
-def get_default_transforms(size, crop):
-    """Apply a series of transformations."""
+# def get_default_transforms(size, crop):
+#     """Apply a series of transformations."""
 
-    transform_list = []
-    if size != 0:
-        transform_list.append(transforms.Resize(size))
-    if crop:
-        transform_list.append(transforms.CenterCrop(size))
-    transform_list.append(transforms.ToTensor())
-    transform = transforms.Compose(transform_list)
-    return transform
+#     transform_list = []
+#     if size != 0:
+#         transform_list.append(transforms.Resize(size))
+#     if crop:
+#         transform_list.append(transforms.CenterCrop(size))
+#     transform_list.append(transforms.ToTensor())
+#     transform = transforms.Compose(transform_list)
+#     return transform
 
 
 # class StyleLoader():
@@ -321,7 +321,7 @@ class SmoothMe(SmoothTransferer):
         # self.vgg.cuda()
         # self.decoder.cuda()
 
-        self.content_transforms = get_default_transforms(self.args.content_size, self.args.crop)
+        #self.content_transforms = get_default_transforms(self.args.content_size, self.args.crop)
         # self.style_transforms = get_default_transforms(self.args.style_size, self.args.crop)
 
         self.print_img_counter = 0
@@ -357,7 +357,7 @@ class SmoothMe(SmoothTransferer):
         output_tensor = torch.FloatTensor(content_tensor.size()).zero_()
 
         tf.reset_default_graph()
-        test_input = tf.placeholder(tf.float32,[1, 3, None, None], name='test')
+        test_input = tf.placeholder(tf.float32,[None, None, None, None], name='test')
         test_input_scale = test_input ######[0,255]
         test_output, temp_weights= model_vdsr(test_input_scale,reuse=False)
         saver = tf.train.Saver()
@@ -420,10 +420,10 @@ class SmoothMe(SmoothTransferer):
         saver.restore(sess, 'checkpoint_ReguTerm/model-140002')
         content = content.data.numpy()
         tfcontent = tf.convert_to_tensor(content)
-        with tf.Session():
+        #with tf.Session():
 
             #output = tfcontent.eval()
-            output= sess.run(test_output,feed_dict={test_input: content})
+        output= sess.run(feed_dict={test_input: content})
         #print("*************************************************************")
         #print(type(output))
         #print(type(output[0]))
