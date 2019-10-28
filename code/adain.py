@@ -320,7 +320,7 @@ class SmoothMe(SmoothTransferer):
         # self.vgg.cuda()
         # self.decoder.cuda()
 
-        self.content_transforms = get_default_transforms(self.args.content_size)
+        self.content_transforms = get_default_transforms(self.args.content_size, self.args.crop)
         # self.style_transforms = get_default_transforms(self.args.style_size, self.args.crop)
 
         self.print_img_counter = 0
@@ -410,8 +410,8 @@ class SmoothMe(SmoothTransferer):
         Returns:
         a torch.FloatTensor with the transferred image
         """
-
-        radius = 15;
-        output = GuidedFilt(img, radius)
+        content = content.data.numpy()
+        radius = 15
+        output = GuidedFilt(content, radius)
         return torch.tensor(output)
 
