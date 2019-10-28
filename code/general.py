@@ -31,8 +31,8 @@ ADAIN_VGG_PATH = pjoin(ADAIN_MODEL_DIR, "vgg_normalised.pth")
 ADAIN_DECODER_PATH = pjoin(ADAIN_MODEL_DIR, "decoder.pth")
 
 
-assert os.path.exists(ADAIN_VGG_PATH)
-assert os.path.exists(ADAIN_DECODER_PATH)
+#assert os.path.exists(ADAIN_VGG_PATH)
+#assert os.path.exists(ADAIN_DECODER_PATH)
 assert os.path.exists(IMAGENET_PATH)
 assert os.path.exists(pjoin(IMAGENET_PATH, "train/"))
 assert os.path.exists(pjoin(IMAGENET_PATH, "val/"))
