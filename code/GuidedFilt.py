@@ -9,10 +9,10 @@ import numpy as np
 
 
 def GuidedFilt(img, r):
-    eps = 0.04
+    eps = 0.005
 
     I = np.double(img)
-    I = I / 255
+    #print("min = {}, max = {}".format(I.min(),I.max()))
     I2 = cv2.pow(I, 2)
     mean_I = cv2.boxFilter(I, -1, ((2 * r) + 1, (2 * r) + 1))
     mean_I2 = cv2.boxFilter(I2, -1, ((2 * r) + 1, (2 * r) + 1))
@@ -28,5 +28,4 @@ def GuidedFilt(img, r):
     mean_b = cv2.boxFilter(b, -1, ((2 * r) + 1, (2 * r) + 1))
 
     q = (mean_a * I) + mean_b
-
-    return (np.uint8(q * 255))
+    return q

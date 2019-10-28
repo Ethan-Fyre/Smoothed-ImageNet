@@ -10,6 +10,7 @@ import os
 import sys
 import torch
 from torch.autograd import Variable
+import cv2
 from torchvision.utils import save_image
 from torchvision import transforms
 import torch.nn as nn
@@ -411,9 +412,14 @@ class SmoothMe(SmoothTransferer):
         a torch.FloatTensor with the transferred image
         """
         content = content.data.numpy()
-        content = np.reshape(content,[224, 224, 3])
+        content = np.reshape(content, [224, 224, 3])
+        sze = 5
+        sigma_color = 35
+        sigma_space = 35
+        output = cv2.bilateralFilter(content, sze, sigma_color, sigma_space)
         radius = 15
-        output = GuidedFilt(content, radius)
-        output = np.reshape(output,[1, 3, 224, 224])
+        output = GuidedFilt(output, radius)
+
+        output = np.reshape(output, [1, 3, 224, 224])
         return torch.tensor(output)
 
