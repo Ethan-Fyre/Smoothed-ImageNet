@@ -284,7 +284,7 @@ class SmoothTransferer(ABC):
         raise NotImplementedError("This needs to be implemented by child class.")
 
     @abstractmethod
-    def transfer_single_style(self,  content_variable):
+    def transfer_single_smooth(self,  content_variable):
         self.raise_default_error()
 
     @abstractmethod
