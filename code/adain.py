@@ -420,10 +420,10 @@ class SmoothMe(SmoothTransferer):
         saver.restore(sess, 'checkpoint_ReguTerm/model-140002')
         content = content.data.numpy()
         tfcontent = tf.convert_to_tensor(content)
-        #with tf.Session():
+        with tf.Session():
 
-            #output = tfcontent.eval()
-        output= sess.run(feed_dict={test_input: content})
+            output = tfcontent.eval()
+        #output= sess.run(feed_dict={test_input: content})
         #print("*************************************************************")
         #print(type(output))
         #print(type(output[0]))
