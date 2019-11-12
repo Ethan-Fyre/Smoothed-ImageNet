@@ -16,7 +16,7 @@ from torchvision import transforms
 import torch.nn as nn
 from PIL import Image
 
-from GuidedFilt import GuidedFilt
+from GuidedFilt import GuidedFilter
 import numpy as np
 from abc import ABC, abstractmethod 
 
@@ -321,7 +321,7 @@ class SmoothMe(SmoothTransferer):
         # self.vgg.cuda()
         # self.decoder.cuda()
 
-        self.content_transforms = get_default_transforms(self.args.content_size, False)
+        #self.content_transforms = get_default_transforms(self.args.content_size, False)
         # self.style_transforms = get_default_transforms(self.args.style_size, self.args.crop)
 
         self.print_img_counter = 0
@@ -413,12 +413,18 @@ class SmoothMe(SmoothTransferer):
         """
         content = content.data.numpy()
         content = np.reshape(content, [224, 224, 3])
-        sze = 5
+        sze = 3
         sigma_color = 35
-        sigma_space = 35
-        output = cv2.bilateralFilter(content, sze, sigma_color, sigma_space)
-        radius = 15
-        output = GuidedFilt(output, radius)
+        sigma_space = 35  
+
+        #output = GuidedFilt(content, radius)
+        #output = cv2.bilateralFilter(content, sze, sigma_color, sigma_space)
+        #output = cv2.medianBlur(content, 3)
+        #output = cv2.GaussianBlur(content, (3,3),0)
+        radius = 3
+        eps = .001 #0.0015
+        gf = GuidedFilter(content, radius, eps)
+        output = gf.filter(content)
 
         output = np.reshape(output, [1, 3, 224, 224])
         return torch.tensor(output)

@@ -195,7 +195,6 @@ def preprocess(data_loader, sourcedir, targetdir,
 
             target_img_path = os.path.join(target_classdir, 
                                            current_class_files[counter].replace(".JPEG", ".png")) 
-
             save_image(tensor = input[img_index,:,:,:],
                        filename = target_img_path)
             counter += 1
