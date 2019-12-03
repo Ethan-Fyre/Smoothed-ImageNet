@@ -1,53 +1,12 @@
 import torch
-import torchvision.datasets as datasets
 import cw
+import os
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
+import torchvision
+import torchvision.models
+from torch.utils import model_zoo
 
-valdir = os.path.join(".", 'val')
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
-
-dataloader = torch.utils.data.DataLoader(
-    datasets.ImageFolder(valdir, transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        normalize,
-    ])),
-    batch_size=256, shuffle=False,
-    num_workers=4, pin_memory=True)
-
-style_models = {"A": "resnet50_trained_on_SIN",
-                        "B": "resnet50_trained_on_SIN_and_IN",
-                        "C": "resnet50_trained_on_SIN_and_IN_then_finetuned_on_IN"}
-net = load_model(style_models["A"])
-
-inputs_box = (min((0 - m) / s for m, s in zip(mean, std)),
-              max((1 - m) / s for m, s in zip(mean, std)))
-# an untargeted adversary
-adversary = cw.L2Adversary(targeted=False,
-                           confidence=0.0,
-                           search_steps=10,
-                           box=inputs_box,
-                           optimizer_lr=5e-4)
-
-inputs, targets = next(iter(dataloader))
-adversarial_examples = adversary(net, inputs, targets, to_numpy=False)
-assert isinstance(adversarial_examples, torch.FloatTensor)
-assert adversarial_examples.size() == inputs.size()
-
-# a targeted adversary
-adversary = cw.L2Adversary(targeted=True,
-                           confidence=0.0,
-                           search_steps=10,
-                           box=inputs_box,
-                           optimizer_lr=5e-4)
-
-inputs, _ = next(iter(dataloader))
-# a batch of any attack targets
-attack_targets = torch.ones(inputs.size(0)) * 3
-adversarial_examples = adversary(net, inputs, attack_targets, to_numpy=False)
-assert isinstance(adversarial_examples, torch.FloatTensor)
-assert adversarial_examples.size() == inputs.size()
 
 def load_model(model_name):
     model_urls = {
@@ -89,3 +48,54 @@ def load_model(model_name):
 
     model.load_state_dict(checkpoint["state_dict"])
     return model
+
+
+
+valdir = os.path.join("../data", 'val')
+mean=[0.485, 0.456, 0.406]
+std=[0.229, 0.224, 0.225]
+normalize = transforms.Normalize(mean,std)
+
+dataloader = torch.utils.data.DataLoader(
+    datasets.ImageFolder(valdir, transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        normalize,
+    ])),
+    batch_size=128, shuffle=False,
+    num_workers=0, pin_memory=True)
+
+style_models = {"A": "resnet50_trained_on_SIN",
+                        "B": "resnet50_trained_on_SIN_and_IN",
+                        "C": "resnet50_trained_on_SIN_and_IN_then_finetuned_on_IN"}
+net = load_model(style_models["A"])
+
+inputs_box = (min((0 - m) / s for m, s in zip(mean, std)),
+              max((1 - m) / s for m, s in zip(mean, std)))
+# an untargeted adversary
+adversary = cw.L2Adversary(targeted=False,
+                           confidence=0.0,
+                           search_steps=10,
+                           box=inputs_box,
+                           optimizer_lr=5e-4)
+
+inputs, targets = next(iter(dataloader))
+adversarial_examples = adversary(net, inputs, targets, to_numpy=False)
+assert isinstance(adversarial_examples, torch.FloatTensor)
+assert adversarial_examples.size() == inputs.size()
+
+# a targeted adversary
+adversary = cw.L2Adversary(targeted=True,
+                           confidence=0.0,
+                           search_steps=10,
+                           box=inputs_box,
+                           optimizer_lr=5e-4)
+
+inputs, _ = next(iter(dataloader))
+# a batch of any attack targets
+attack_targets = torch.ones(inputs.size(0)) * 3
+adversarial_examples = adversary(net, inputs, attack_targets, to_numpy=False)
+assert isinstance(adversarial_examples, torch.FloatTensor)
+assert adversarial_examples.size() == inputs.size()
+

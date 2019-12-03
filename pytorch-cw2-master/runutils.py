@@ -75,9 +75,9 @@ def make_cuda_consistent(refobj, *args):
     for v in args:
         cuda_state = get_cuda_state(v)
         if cuda_state != ref_cuda_state:
-            if isinstance(v, Variable):
-                raise ValueError('cannot change cuda state of a Variable')
-            elif isinstance(v, nn.Module):
+            #if isinstance(v, Variable):
+            #    raise ValueError('cannot change cuda state of a Variable')
+            if isinstance(v, nn.Module):
                 move_to_device(v)
             else:
                 v = move_to_device(v)
@@ -94,7 +94,7 @@ def predict(net, inputs):
     :return: prediction tensor (LongTensor), of dimension [B]
     """
     inputs = make_cuda_consistent(net, inputs)[0]
-    inputs_var = Variable(inputs)
+    inputs_var = inputs
     outputs_var = net(inputs_var)
     predictions = torch.max(outputs_var.data, dim=1)[1]
     return predictions
